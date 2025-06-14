@@ -78,7 +78,7 @@ class InferenceAPI:
             df=pd.read_csv(io.StringIO(response.decode('utf-8')))
             df=df.set_index('Date')
             df.index=pd.to_datetime(df.index,format='%Y-%m-%d')
-            df.sort_index()
+            df=df.sort_index()
                        
             return df
             

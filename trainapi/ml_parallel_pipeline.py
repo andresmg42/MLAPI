@@ -457,7 +457,7 @@ class RollingOLSRegressionParallel:
         
         df_returns=self.calculate_return_for_date_p(df_new_df,df_fixed_dates)
 
-        df_returns.sort_index()
+        df_returns=df_returns.sort_index()
         # df_returns=self.calculate_each_day_portfolio_return(df_new_df,df_fixed_dates)
 
         return df_returns
