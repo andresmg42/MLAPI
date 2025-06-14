@@ -1,0 +1,9 @@
+services:
+  ray_jupyter_train:
+    build: .                        # Build from the Dockerfile in the same folder
+    container_name: train_serve
+    shm_size: "2gb"
+    environment:
+    - RAY_memory_usage_threshold=0.95
+    ports:
+      - "8000:8000"  
