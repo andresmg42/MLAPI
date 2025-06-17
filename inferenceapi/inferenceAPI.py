@@ -56,16 +56,6 @@ class InferenceAPI:
         response=self.store_portfolio_supabase(portfolio_df,item.ticker)
         return response
 
-    @app.post('/train')
-    def get_results(self,item:Item):
-        try:
-            # results= requests.post(f'http://host.docker.internal:8000/train/?index={item.index}&start_date={item.start_date}&end_date={item.end_date}&batch_size={item.batch_size}')
-            results=requests.post(f'http://host.docker.internal:8000/train',json={'index':item.index,'start_date':item.start_date,'end_date':item.end_date,'batch_size':item.batch_size})
-            return results.json()
-        except Exception as e:
-            print(f'error fetching backen api:{e}')
-        
-
     def download_data(self,index):
     
         try:
