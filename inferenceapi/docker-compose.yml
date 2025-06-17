@@ -4,6 +4,11 @@ services:
     container_name: inference_serve
     shm_size: "2gb"
     environment:
-    - RAY_memory_usage_threshold=0.95
+      - RAY_memory_usage_threshold=0.95
+      - RAY_memory_monitor_refresh_ms=0
     ports:
-    - "8001:8001"
+      - "8001:8001"
+    deploy:
+      resources:
+        limits:
+          memory: 4g
