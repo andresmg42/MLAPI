@@ -51,6 +51,7 @@ def download_data_by_tickers(stocks,start,end):
 @ray.remote(num_cpus=2)
 def calculate_tecnical_indicators(data):
         # df = copy.deepcopy(data)
+        df=data
         df = df.stack()
         df.index.names = ['date', 'ticker']
         df.columns = df.columns.str.lower()

@@ -12,3 +12,4 @@ ray[data,train,tune,serve]
 pydantic
 boto3
 supabase
+storage3
