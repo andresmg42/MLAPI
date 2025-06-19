@@ -479,7 +479,7 @@ class RollingOLSRegressionParallel:
         
         df_new_df=self.download_fresh_daily_prices_p(df_clusters,batch_size)
         
-        df_returns=self.calculate_return_for_date_p(df_new_df,df_fixed_dates)
+        df_returns=self.calculate_each_day_portfolio_return(df_new_df,df_fixed_dates)
 
         df_returns=df_returns.sort_index()
         
