@@ -1,0 +1,48 @@
+services:
+  ray_server_train:
+    build: ./trainapi
+    container_name: train_server
+    shm_size: "2gb"
+    environment:
+      - RAY_memory_usage_threshold=0.95
+      - RAY_memory_monitor_refresh_ms=0
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+    ports:
+      - "8000:8000"
+    mem_limit: 4g 
+
+  ray_server_inference:
+    build: ./inferenceapi
+    container_name: inference_serve
+    shm_size: "2gb"
+    environment:
+      - RAY_memory_usage_threshold=0.95
+      - RAY_memory_monitor_refresh_ms=0
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+    ports:
+      - "8001:8001"
+    mem_limit: 4g 
+    depends_on:
+      - ray_server_train 
+
+  plot_service:
+    build: ./Generate
+    container_name: plot_service
+    ports:
+      - "8002:8002"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      
+  client_server:
+    build: ./client
+    container_name: client_serve
+    environment:
+      - VITE_SUPABASE_URL=${SUPABASE_URL}
+      - VITE_SUPABASE_KEY=${SUPABASE_KEY}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - ray_server_inference  

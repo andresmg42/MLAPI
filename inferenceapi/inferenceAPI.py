@@ -13,9 +13,18 @@ import tempfile
 from dotenv import load_dotenv
 import os
 from storage3.utils import StorageException
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()    
 app=FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Puedes poner ["*"] en desarrollo si quieres permitir todos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class Item(BaseModel):
     index: str
@@ -37,7 +46,7 @@ class InferenceAPI:
     def __init__(self):
         self.supabase=create_client(os.getenv('SUPABASE_URL'),os.getenv('SUPABASE_KEY'))
 
-    @app.post('/inference')
+    @app.post('/')
     def get_portfolio_returns_to_visualize(self,item:Item_t):
 
         portfolio_df=self.download_data(item.index)
@@ -55,16 +64,6 @@ class InferenceAPI:
 
         response=self.store_portfolio_supabase(portfolio_df,item.ticker)
         return response
-
-    @app.post('/train')
-    def get_results(self,item:Item):
-        try:
-            # results= requests.post(f'http://host.docker.internal:8000/train/?index={item.index}&start_date={item.start_date}&end_date={item.end_date}&batch_size={item.batch_size}')
-            results=requests.post(f'http://host.docker.internal:8000/train',json={'index':item.index,'start_date':item.start_date,'end_date':item.end_date,'batch_size':item.batch_size})
-            return results.json()
-        except Exception as e:
-            print(f'error fetching backen api:{e}')
-        
 
     def download_data(self,index):
     
@@ -114,6 +113,5 @@ class InferenceAPI:
 if __name__=="__main__":
 
     serve.start(detached=True, http_options={'host':'0.0.0.0','port':8001})
-    serve.run(InferenceAPI.bind(),route_prefix='/',blocking=True)
+    serve.run(InferenceAPI.bind(),route_prefix='/inference',blocking=True)
     
-

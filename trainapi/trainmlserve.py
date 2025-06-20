@@ -13,6 +13,17 @@ import tempfile
 from dotenv import load_dotenv
 import os
 load_dotenv()
+app = FastAPI()
+
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # Puedes poner ["*"] en desarrollo si quieres permitir todos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def store_portfolio_supabase(portfolio_returns,index_p):
     try:
@@ -37,9 +48,6 @@ def store_portfolio_supabase(portfolio_returns,index_p):
         return response
     except Exception as  e:
         print(f'error uploading file: {e}')
-
-
-app = FastAPI()
 
 class Item(BaseModel):
     index:str

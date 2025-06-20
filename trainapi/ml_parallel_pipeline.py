@@ -48,43 +48,66 @@ def download_data_by_tickers(stocks,start,end):
     return new_df
 
 @ray.remote(num_cpus=2)
-def calculate_tecnical_indicators(df):
-    df=copy.deepcopy(df)
-    df=df.stack()
-    df.index.names=['date','ticker']
-    df.columns=df.columns.str.lower()
-
-
-    # calculate Garman-Klass Volatility, rsi,bollinger bands, atr,macd,dollar volume
-    df['garman_klass_vol'] = ((np.log(df['high'])-np.log(df['low']))**2)/2-(2*np.log(2)-1)*((np.log(df['adj close'])-np.log(df['open']))**2)
-
-    df['rsi'] = df.groupby(level=1)['adj close'].transform(lambda x: pandas_ta.rsi(close=x, length=20))
-
-    df['bb_low'] = df.groupby(level=1)['adj close'].transform(lambda x: pandas_ta.bbands(close=np.log1p(x), length=20).iloc[:,0])
-
-    df['bb_mid'] = df.groupby(level=1)['adj close'].transform(lambda x: pandas_ta.bbands(close=np.log1p(x), length=20).iloc[:,1])
-
-    df['bb_high'] = df.groupby(level=1)['adj close'].transform(lambda x: pandas_ta.bbands(close=np.log1p(x), length=20).iloc[:,2])
-
-    def compute_atr(stock_data):
-        atr = pandas_ta.atr(high=stock_data['high'],
-                            low=stock_data['low'],
-                            close=stock_data['close'],
-                            length=14)
-        return atr.sub(atr.mean()).div(atr.std())
-
-    df['atr'] = df.groupby(level=1, group_keys=False).apply(compute_atr)
-
-    def compute_macd(close):
-        macd = pandas_ta.macd(close=close, length=20).iloc[:,0]
-        return macd.sub(macd.mean()).div(macd.std())
-
-    df['macd'] = df.groupby(level=1, group_keys=False)['adj close'].apply(compute_macd)
-
-    df['dollar_volume'] = (df['adj close']*df['volume'])/1e6
-
-
-    return df
+def calculate_tecnical_indicators(data):
+        # df = copy.deepcopy(data)
+        df = data
+        df = df.stack()
+        df.index.names = ['date', 'ticker']
+        df.columns = df.columns.str.lower()
+        
+        # Calculate Garman-Klass Volatility
+        df['garman_klass_vol'] = ((np.log(df['high']) - np.log(df['low']))**2)/2 - (2*np.log(2)-1)*((np.log(df['adj close']) - np.log(df['open']))**2)
+        
+        # Calculate RSI
+        df['rsi'] = df.groupby(level=1)['adj close'].transform(lambda x: pandas_ta.rsi(close=x, length=20))
+        
+        
+        def safe_bb_transform(x, col_idx):
+            bb_result = pandas_ta.bbands(close=np.log1p(x), length=20)
+            if bb_result is not None and len(bb_result.columns) > col_idx:
+                return bb_result.iloc[:, col_idx]
+            else:
+                return pd.Series([np.nan] * len(x), index=x.index)
+        
+        
+        df['bb_low'] = df.groupby(level=1)['adj close'].transform(lambda x: safe_bb_transform(x, 0))
+        df['bb_mid'] = df.groupby(level=1)['adj close'].transform(lambda x: safe_bb_transform(x, 1))
+        df['bb_high'] = df.groupby(level=1)['adj close'].transform(lambda x: safe_bb_transform(x, 2))
+        
+        # Calculate ATR
+        def compute_atr(stock_data):
+            atr = pandas_ta.atr(high=stock_data['high'],
+                                low=stock_data['low'],
+                                close=stock_data['close'],
+                                length=14)
+            if atr is not None:
+                return atr.sub(atr.mean()).div(atr.std())
+            else:
+                return pd.Series([np.nan] * len(stock_data), index=stock_data.index)
+        
+        df['atr'] = df.groupby(level=1, group_keys=False).apply(compute_atr)
+        
+        # Calculate MACD
+        def compute_macd(close):
+            try:
+                if len(close) < 35:  
+                    return pd.Series([np.nan] * len(close), index=close.index)
+                
+                macd_result = pandas_ta.macd(close=close)  
+                if macd_result is not None and not macd_result.empty:
+                    macd = macd_result.iloc[:,0]
+                    if macd.notna().sum() > 0:
+                        return macd.sub(macd.mean()).div(macd.std())
+                
+                return pd.Series([np.nan] * len(close), index=close.index)
+            except:
+                return pd.Series([np.nan] * len(close), index=close.index)
+        
+        df['macd'] = df.groupby(level=1, group_keys=False)['adj close'].apply(compute_macd)
+        
+        # Calculate dollar volume
+        df['dollar_volume'] = (df['adj close'] * df['volume']) / 1e6
+        return df
 
 @ray.remote(num_cpus=2)
 def Calculate_Montly_Returns(data):
