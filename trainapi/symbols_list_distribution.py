@@ -87,3 +87,4 @@ def symbolsList(index):
 
         case 'ftse100': return ftse100()
             
+

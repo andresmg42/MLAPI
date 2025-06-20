@@ -22,6 +22,7 @@ warnings.filterwarnings('ignore')
 
 
 
+
 # funcion auxiliar para partir en lotes
 
 def split_df_by_tickers(df, batch_size=10):
@@ -50,7 +51,7 @@ def download_data_by_tickers(stocks,start,end):
 @ray.remote(num_cpus=2)
 def calculate_tecnical_indicators(data):
         # df = copy.deepcopy(data)
-        df = data
+        df=data
         df = df.stack()
         df.index.names = ['date', 'ticker']
         df.columns = df.columns.str.lower()
@@ -300,7 +301,7 @@ class RollingOLSRegressionParallel:
         initial_centroids[:, 6] = target_rsi_values
     
     
-        #k_means_clustering
+        
         def get_clusters(df):
           df['cluster'] = KMeans(n_clusters=4,
                                 random_state=0,
@@ -432,7 +433,7 @@ class RollingOLSRegressionParallel:
         
                 temp_df = returns_dataframe[start_date:end_date][cols]
         
-                # Create portfolio returns by calculating weighted average
+                
                 portfolio_returns = []
                 for date in temp_df.index:
                     daily_return = 0
@@ -478,10 +479,10 @@ class RollingOLSRegressionParallel:
         
         df_new_df=self.download_fresh_daily_prices_p(df_clusters,batch_size)
         
-        df_returns=self.calculate_return_for_date_p(df_new_df,df_fixed_dates)
+        df_returns=self.calculate_each_day_portfolio_return(df_new_df,df_fixed_dates)
 
         df_returns=df_returns.sort_index()
-        # df_returns=self.calculate_each_day_portfolio_return(df_new_df,df_fixed_dates)
+        
 
         return df_returns
 

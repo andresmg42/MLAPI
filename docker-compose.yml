@@ -1,19 +1,19 @@
 services:
-  ray_server_train:
-    build: ./trainapi
+    ray_server_train:
+    build: .                        # Build from the Dockerfile in the same folder
     container_name: train_server
     shm_size: "2gb"
     environment:
-      - RAY_memory_usage_threshold=0.95
-      - RAY_memory_monitor_refresh_ms=0
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_KEY=${SUPABASE_KEY}
+    - RAY_memory_usage_threshold=0.95
+    - RAY_memory_monitor_refresh_ms=0
+    - SUPABASE_URL=${SUPABASE_URL}
+    - SUPABASE_KEY=${SUPABASE_KEY}
     ports:
       - "8000:8000"
-    mem_limit: 4g 
+    mem_limit: 4g   
 
   ray_server_inference:
-    build: ./inferenceapi
+    build: .
     container_name: inference_serve
     shm_size: "2gb"
     environment:
@@ -23,7 +23,10 @@ services:
       - SUPABASE_KEY=${SUPABASE_KEY}
     ports:
       - "8001:8001"
-    mem_limit: 4g 
+    deploy:
+      resources:
+        limits:
+          memory: 4g
     depends_on:
       - ray_server_train 
 

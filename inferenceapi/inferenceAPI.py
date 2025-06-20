@@ -26,11 +26,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class Item(BaseModel):
-    index: str
-    start_date: str
-    end_date: str
-    batch_size: int
 
 class Item_t(BaseModel):
     ticker:str
