@@ -40,7 +40,7 @@ def split_df_by_tickers(df, batch_size=10):
     
     return df_batches
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def download_data_by_tickers(stocks,start,end):
     new_df = yf.download(tickers=stocks,
                         start=start,
@@ -48,7 +48,7 @@ def download_data_by_tickers(stocks,start,end):
 
     return new_df
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def calculate_tecnical_indicators(data):
         # df = copy.deepcopy(data)
         df=data
@@ -110,7 +110,7 @@ def calculate_tecnical_indicators(data):
         df['dollar_volume'] = (df['adj close'] * df['volume']) / 1e6
         return df
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def Calculate_Montly_Returns(data):
 
   # To capture time series dynamics that reflect, for example,
@@ -143,7 +143,7 @@ def Calculate_Montly_Returns(data):
 
   return data
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def calculate_rolling_f_betas(factor_data):
     factor_data=factor_data.stack()
     betas = (factor_data.groupby(level=1,
