@@ -7,7 +7,7 @@ import ray
 import argparse
 
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def download_fresh_prices(stock_list):
 
     prices_df = yf.download(tickers=stock_list,
