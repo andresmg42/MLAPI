@@ -1,0 +1,9 @@
+services:
+    plot_service:
+    build: ./
+    container_name: plot_service
+    ports:
+      - "8002:8002"
+    environment:
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}

@@ -1,0 +1,11 @@
+services:
+    client_server:
+    build: ./
+    container_name: client_serve
+    environment:
+      - VITE_SUPABASE_URL=${SUPABASE_URL}
+      - VITE_SUPABASE_KEY=${SUPABASE_KEY}
+    ports:
+      - "5173:5173"
+    depends_on:
+      - ray_server_inference  
