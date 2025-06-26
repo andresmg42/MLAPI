@@ -1,5 +1,6 @@
 numpy==1.26.4
-statsmodels
+scipy==1.12.0
+statsmodels==0.14.1
 pandas-datareader==0.10.0
 pandas
 yfinance==0.2.62
@@ -12,3 +13,4 @@ ray[data,train,tune,serve]
 pydantic
 boto3
 supabase
+storage3

@@ -40,7 +40,7 @@ def split_df_by_tickers(df, batch_size=10):
     
     return df_batches
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def download_data_by_tickers(stocks,start,end):
     new_df = yf.download(tickers=stocks,
                         start=start,
@@ -48,9 +48,10 @@ def download_data_by_tickers(stocks,start,end):
 
     return new_df
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def calculate_tecnical_indicators(data):
         # df = copy.deepcopy(data)
+        df=data
         df = df.stack()
         df.index.names = ['date', 'ticker']
         df.columns = df.columns.str.lower()
@@ -109,7 +110,7 @@ def calculate_tecnical_indicators(data):
         df['dollar_volume'] = (df['adj close'] * df['volume']) / 1e6
         return df
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def Calculate_Montly_Returns(data):
 
   # To capture time series dynamics that reflect, for example,
@@ -142,7 +143,7 @@ def Calculate_Montly_Returns(data):
 
   return data
 
-@ray.remote(num_cpus=2)
+@ray.remote(num_cpus=1)
 def calculate_rolling_f_betas(factor_data):
     factor_data=factor_data.stack()
     betas = (factor_data.groupby(level=1,
@@ -478,7 +479,7 @@ class RollingOLSRegressionParallel:
         
         df_new_df=self.download_fresh_daily_prices_p(df_clusters,batch_size)
         
-        df_returns=self.calculate_return_for_date_p(df_new_df,df_fixed_dates)
+        df_returns=self.calculate_each_day_portfolio_return(df_new_df,df_fixed_dates)
 
         df_returns=df_returns.sort_index()
         
