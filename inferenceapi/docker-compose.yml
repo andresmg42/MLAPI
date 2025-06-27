@@ -9,9 +9,5 @@ services:
       - SUPABASE_KEY=${SUPABASE_KEY}
     ports:
       - "8001:8001"
-    deploy:
-      resources:
-        limits:
-          memory: 4g
-    depends_on:
-      - ray_server_train 
+    
+    
