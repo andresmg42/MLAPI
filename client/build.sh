@@ -41,7 +41,7 @@ git clone https://github.com/andresmg42/MLAPI.git
 
 # 5. Build and Run the Application with Docker Compose
 # Navigate into the correct directory.
-cd MLAPI/trainapi
+cd MLAPI/client
 
 #cambiar a rama join de prueba
 git switch join

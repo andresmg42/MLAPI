@@ -54,7 +54,7 @@ export function Inicio() {
   
     try {
       if (selectedOption === 'twitter') {
-        const R0 = await axios.get('http://localhost:8000/train/twitter', TrainData);
+        const R0 = await axios.get('http://localhost:8000/train/twitter');
         console.log('Respuesta entrenamiento', R0.data); 
       } else {
         const R1 = await axios.post('http://localhost:8000/train/yahoofinance', TrainData);
@@ -96,35 +96,15 @@ export function Inicio() {
   }
 
   const procesarFechasDeInicio = (start) => {
-    const startDateTrain = new Date(startDate) 
-    const startDateInference = new Date(start) 
-   
-    if(startDateInference < startDateTrain){
-      Swal.fire({
-        icon:  'warning',
-        title: 'Error en las fechas de inicio',
-        text: 'La fecha de inicio de la inferencia debe ser mayor que la fecha de inicio del entrenamiento',
-        confirmButtonText: 'Cerrar'
-      })
-    }else {
+    
       setStartDateIn(start)
-    }
+    
   }
 
   const procesarFechasDeFinalizacion = (end) => {
-    const endDateTrain = new Date(endDate)
-    const endDateInference = new Date(end)
     
-    if(endDateInference >= endDateTrain){
-      Swal.fire({
-        icon:  'warning',
-        title: 'Error en las fechas de finalizacion',
-        text: 'La fecha final de la inferencia debe ser menor o igual que la fecha final del entrenamiento',
-        confirmButtonText: 'Cerrar'
-      })
-    }else{
       setEndDateIn(end)
-    } 
+    
   }
   const obtenerGrafica = async (e) => {
     setIsLoading(true);          
