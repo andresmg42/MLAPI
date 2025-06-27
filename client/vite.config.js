@@ -7,5 +7,6 @@ export default defineConfig({
   server: {
     host: '0.0.0.0', 
     port: 5173,
+    allowedHosts: ['ec2-34-203-237-227.compute-1.amazonaws.com'],
   },
 })
