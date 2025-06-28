@@ -20,7 +20,7 @@ app=FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Puedes poner ["*"] en desarrollo si quieres permitir todos
+    allow_origins=["*"],  # Puedes poner ["*"] en desarrollo si quieres permitir todos
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
