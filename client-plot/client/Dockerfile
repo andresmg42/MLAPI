@@ -1,22 +1,25 @@
+# Stage 1: Build the Vite app
+FROM node:20 AS builder
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+# Stage 2: Serve the build with a static server
 FROM node:20
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-
-RUN npm install
-
-COPY . .
-
-RUN npm run build
-
 RUN npm install -g serve
 
-#EXPOSE 8002
+COPY --from=builder /app/dist ./dist
 
-#CMD ["serve", "-s", "build", "-l", "8002"]
+EXPOSE 80
 
-EXPOSE 5173
+CMD ["serve", "-s", "dist", "-l", "80"]
 
-CMD ["npm", "run", "dev"]
 

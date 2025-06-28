@@ -3,7 +3,10 @@ import banner from '../assets/banner.jpg';
 import Fondo_AI from '../assets/Fondo_AI.jpg';
 import axios from 'axios';
 import { RingLoader } from 'react-spinners';
-import Swal from "sweetalert2";
+import apiPlot from '../apis/api_plot';
+import apiTrain from '../apis/api_train';
+import apiInfernce from '../apis/api_inference';
+
 
 export function Inicio() {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,10 +57,10 @@ export function Inicio() {
   
     try {
       if (selectedOption === 'twitter') {
-        const R0 = await axios.get('http://localhost:8000/train/twitter');
+        const R0 = await apiTrain.get('/train/twitter');
         console.log('Respuesta entrenamiento', R0.data); 
       } else {
-        const R1 = await axios.post('http://localhost:8000/train/yahoofinance', TrainData);
+        const R1 = await apiTrain.post('/train/yahoofinance', TrainData);
         console.log('Respuesta entrenamiento', R1.data);
       }
       setTrained(true);
@@ -82,7 +85,7 @@ export function Inicio() {
     };
 
     try {
-      const R2 = await axios.post('http://localhost:8001/inference', InferenceDate);
+      const R2 = await apiInfernce.post('/inference', InferenceDate);
       console.log('Respuesta Inferencia', R2.data);
       console.log('Respuesta Inferencia', R2.data.path);
       setPlotUrl(R2.data.path);
@@ -111,7 +114,7 @@ export function Inicio() {
     setLoadingState('Cargando imagen...'); 
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:8002/plot',
+      const response = await apiPlot.post('/plot',
         { url: plotUrl },
         { responseType: 'blob' }
       );
