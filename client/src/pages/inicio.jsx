@@ -20,6 +20,7 @@ export function Inicio() {
   const [showImage, setShowImage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingState, setLoadingState] = useState('');
+  const [isTwitter, setIsTwitter] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const handleSelect = (option) => {
@@ -30,6 +31,8 @@ export function Inicio() {
       setBatchSize(25);
     } else if (option === 'downjones') {
       setBatchSize(2);
+    } else if (option === 'twitter'){
+      setIsTwitter(true)
     }
   };
 
@@ -159,6 +162,16 @@ export function Inicio() {
       <div className="flex justify-center items-center p-8 min-h-[calc(100vh-160px)]">
         <form className="bg-white bg-opacity-80 backdrop-blur-sm p-8 rounded-xl shadow-lg w-full max-w-md space-y-6">
 
+        {trained && (
+          <button 
+            type="button" 
+            className="bg-blue-600 text-white py-2 px-4 rounded-full hover:bg-blue-700 transition" 
+            onClick={() => {setTrained(false),setShowImage(false), setPlotUrl('')}}
+            disabled={isLoading}>
+            New Train
+          </button>
+        )}
+            
           {/* Menú desplegable */}
           <div className="flex justify-between items-center relative">
             <label className="font-semibold">Data</label>
@@ -194,7 +207,8 @@ export function Inicio() {
             </div>
           </div>
 
-          <div className="flex justify-between items-center">
+          {trained && !isTwitter &&(
+            <div className="flex justify-between items-center">
             <label className="font-semibold">Ticker</label>
             <input
               type="text"
@@ -203,8 +217,8 @@ export function Inicio() {
               onChange={(e) => setTicker(e.target.value)}
             />
           </div>
-
-
+          )}
+          
           {/* Fechas */}
           {!trained && (
             <div className="flex justify-between items-center">
