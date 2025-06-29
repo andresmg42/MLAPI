@@ -3,10 +3,10 @@ import banner from '../assets/banner.jpg';
 import Fondo_AI from '../assets/Fondo_AI.jpg';
 import axios from 'axios';
 import { RingLoader } from 'react-spinners';
-import apiPlot from '../apis/api_plot';
-import apiTrain from '../apis/api_train';
-import apiInfernce from '../apis/api_inference';
-
+import Swal from "sweetalert2";
+import api_inference from '../apis/api_inference'
+import api_plot from '../apis/api_plot'
+import api_train from '../apis/api_train'
 
 export function Inicio() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +23,7 @@ export function Inicio() {
   const [showImage, setShowImage] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingState, setLoadingState] = useState('');
+  const [isTwitter, setIsTwitter] = useState(false);
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const handleSelect = (option) => {
@@ -33,6 +34,8 @@ export function Inicio() {
       setBatchSize(25);
     } else if (option === 'downjones') {
       setBatchSize(2);
+    } else if (option === 'twitter'){
+      setIsTwitter(true)
     }
   };
 
@@ -57,10 +60,10 @@ export function Inicio() {
   
     try {
       if (selectedOption === 'twitter') {
-        const R0 = await apiTrain.get('/train/twitter');
+        const R0 = await api_train.get('/train/twitter', TrainData);
         console.log('Respuesta entrenamiento', R0.data); 
       } else {
-        const R1 = await apiTrain.post('/train/yahoofinance', TrainData);
+        const R1 = await api_train.post('/train/yahoofinance', TrainData);
         console.log('Respuesta entrenamiento', R1.data);
       }
       setTrained(true);
@@ -85,7 +88,7 @@ export function Inicio() {
     };
 
     try {
-      const R2 = await apiInfernce.post('/inference', InferenceDate);
+      const R2 = await api_inference.post('/inference', InferenceDate);
       console.log('Respuesta Inferencia', R2.data);
       console.log('Respuesta Inferencia', R2.data.path);
       setPlotUrl(R2.data.path);
@@ -99,22 +102,42 @@ export function Inicio() {
   }
 
   const procesarFechasDeInicio = (start) => {
-    
+    const startDateTrain = new Date(startDate) 
+    const startDateInference = new Date(start) 
+   
+    if(startDateInference < startDateTrain){
+      Swal.fire({
+        icon:  'warning',
+        title: 'Error en las fechas de inicio',
+        text: 'La fecha de inicio de la inferencia debe ser mayor que la fecha de inicio del entrenamiento',
+        confirmButtonText: 'Cerrar'
+      })
+    }else {
       setStartDateIn(start)
-    
+    }
   }
 
   const procesarFechasDeFinalizacion = (end) => {
+    const endDateTrain = new Date(endDate)
+    const endDateInference = new Date(end)
     
+    if(endDateInference >= endDateTrain){
+      Swal.fire({
+        icon:  'warning',
+        title: 'Error en las fechas de finalizacion',
+        text: 'La fecha final de la inferencia debe ser menor o igual que la fecha final del entrenamiento',
+        confirmButtonText: 'Cerrar'
+      })
+    }else{
       setEndDateIn(end)
-    
+    } 
   }
   const obtenerGrafica = async (e) => {
     setIsLoading(true);          
     setLoadingState('Cargando imagen...'); 
     e.preventDefault();
     try {
-      const response = await apiPlot.post('/plot',
+      const response = await api_plot.post('/plot',
         { url: plotUrl },
         { responseType: 'blob' }
       );
@@ -142,6 +165,16 @@ export function Inicio() {
       <div className="flex justify-center items-center p-8 min-h-[calc(100vh-160px)]">
         <form className="bg-white bg-opacity-80 backdrop-blur-sm p-8 rounded-xl shadow-lg w-full max-w-md space-y-6">
 
+        {trained && (
+          <button 
+            type="button" 
+            className="bg-blue-600 text-white py-2 px-4 rounded-full hover:bg-blue-700 transition" 
+            onClick={() => {setTrained(false),setShowImage(false), setPlotUrl('')}}
+            disabled={isLoading}>
+            New Train
+          </button>
+        )}
+            
           {/* Menú desplegable */}
           <div className="flex justify-between items-center relative">
             <label className="font-semibold">Data</label>
@@ -177,7 +210,8 @@ export function Inicio() {
             </div>
           </div>
 
-          <div className="flex justify-between items-center">
+          {trained && !isTwitter &&(
+            <div className="flex justify-between items-center">
             <label className="font-semibold">Ticker</label>
             <input
               type="text"
@@ -186,8 +220,8 @@ export function Inicio() {
               onChange={(e) => setTicker(e.target.value)}
             />
           </div>
-
-
+          )}
+          
           {/* Fechas */}
           {!trained && (
             <div className="flex justify-between items-center">
